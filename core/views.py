@@ -87,15 +87,26 @@ def checkin_create(request, habit_id):
     if request.method == 'POST':
         form = CheckInForm(request.POST)
         if form.is_valid():
+            checkin_date = form.cleaned_data['date']
+            # Guard against duplicate (habit, date) check-ins: Django's
+            # ModelForm unique validation does not cover the habit FK here,
+            # so check explicitly and show a friendly message instead of
+            # letting the database raise an IntegrityError.
+            if CheckIn.objects.filter(habit=habit, date=checkin_date).exists():
+                messages.warning(
+                    request,
+                    f'You already checked in for "{habit.name}" on {checkin_date}.',
+                )
+                return render(request, 'core/checkin_form.html', {'form': form, 'habit': habit})
             checkin = form.save(commit=False)
             checkin.habit = habit
             checkin.save()
 
             streak, created = Streak.objects.get_or_create(habit=habit)
 
-            if streak.last_checkin_date is None:
+            if streak.last_check_in is None:
                 streak.current_streak = 1
-            elif (checkin.date - streak.last_checkin_date).days == 1:
+            elif (checkin.date - streak.last_check_in).days == 1:
                 streak.current_streak += 1
             else:
                 streak.current_streak = 1
@@ -103,7 +114,7 @@ def checkin_create(request, habit_id):
             if streak.current_streak > streak.longest_streak:
                 streak.longest_streak = streak.current_streak
 
-            streak.last_checkin_date = checkin.date
+            streak.last_check_in = checkin.date
             streak.save()
 
             return redirect('habit_list')
@@ -118,6 +129,16 @@ def checkin_update(request, habit_id, checkin_id):
     if request.method == 'POST':
         form = CheckInForm(request.POST, instance=checkin)
         if form.is_valid():
+            checkin_date = form.cleaned_data['date']
+            # Same duplicate (habit, date) guard as checkin_create: changing
+            # this check-in's date onto an existing check-in for the habit
+            # would otherwise hit the unique constraint and return a 500.
+            if CheckIn.objects.filter(habit=habit, date=checkin_date).exclude(pk=checkin.pk).exists():
+                messages.warning(
+                    request,
+                    f'You already have a check-in for "{habit.name}" on {checkin_date}.',
+                )
+                return render(request, 'core/checkin_form.html', {'form': form, 'habit': habit})
             form.save()
             return redirect('habit_list')
     else:

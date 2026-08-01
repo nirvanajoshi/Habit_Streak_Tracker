@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Login URL used by @login_required — this app's login page is at /login/
+LOGIN_URL = 'login'
+
 
 # Application definition
 

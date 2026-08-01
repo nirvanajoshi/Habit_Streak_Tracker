@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Register — StreakKeeper{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="display-6 mb-2">🌱</div>
+                    <h1 class="h3 fw-bold mb-1">Join StreakKeeper</h1>
+                    <p class="text-muted small mb-0">Start a habit, build a streak, stay accountable.</p>
+                </div>
+                <form method="post" class="sk-form" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text small">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    {% if form.non_field_errors %}
+                    <div class="text-danger small mb-3">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2">Create Account</button>
+                </form>
+                <p class="text-center text-muted small mt-4 mb-0">
+                    Already have an account? <a href="{% url 'login' %}" class="fw-semibold">Log in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

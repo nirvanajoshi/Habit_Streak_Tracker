@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}StreakKeeper{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sk-teal: #0D9488;
+            --sk-teal-dark: #0B7C72;
+            --sk-teal-soft: rgba(13, 148, 136, 0.12);
+            --sk-orange: #F97316;
+            --sk-bg: #F8FAFC;
+        }
+        body {
+            background-color: var(--sk-bg);
+            font-family: var(--bs-body-font-family);
+        }
+        /* Navbar */
+        .navbar-sk {
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .navbar-sk .navbar-brand {
+            color: var(--sk-teal);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .navbar-sk .nav-link {
+            color: #334155;
+            font-weight: 500;
+        }
+        .navbar-sk .nav-link:hover,
+        .navbar-sk .nav-link.active {
+            color: var(--sk-teal);
+        }
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--sk-teal);
+            border-color: var(--sk-teal);
+        }
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active {
+            background-color: var(--sk-teal-dark) !important;
+            border-color: var(--sk-teal-dark) !important;
+        }
+        .btn-outline-primary {
+            color: var(--sk-teal);
+            border-color: var(--sk-teal);
+        }
+        .btn-outline-primary:hover,
+        .btn-outline-primary:focus,
+        .btn-outline-primary:active {
+            background-color: var(--sk-teal) !important;
+            border-color: var(--sk-teal) !important;
+        }
+        .btn-primary:focus-visible,
+        .btn-outline-primary:focus-visible {
+            box-shadow: 0 0 0 0.25rem var(--sk-teal-soft);
+        }
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        /* Streak accent */
+        .text-accent {
+            color: var(--sk-orange);
+        }
+        .streak-panel {
+            background-color: #FFF7ED;
+            border: 1px solid #FFEDD5;
+        }
+        /* Form controls (fields are rendered without classes, style them here) */
+        .sk-form input[type="text"],
+        .sk-form input[type="password"],
+        .sk-form input[type="date"],
+        .sk-form input[type="email"],
+        .sk-form textarea,
+        .sk-form select {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #1e293b;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .sk-form input:focus,
+        .sk-form textarea:focus,
+        .sk-form select:focus {
+            color: #1e293b;
+            background-color: #fff;
+            border-color: var(--sk-teal);
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem var(--sk-teal-soft);
+        }
+        .sk-form textarea {
+            min-height: 100px;
+        }
+        /* Avatar circle for partners */
+        .avatar-circle {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            background-color: var(--sk-teal-soft);
+            color: var(--sk-teal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        /* Links */
+        a {
+            color: var(--sk-teal);
+        }
+        a:hover {
+            color: var(--sk-teal-dark);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-sk sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'habit_list' %}">
+                <span class="fs-5">🔥</span> StreakKeeper
+            </a>
+            {% if user.is_authenticated %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
+                    aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.url_name == 'habit_list' %} active{% endif %}" href="{% url 'habit_list' %}">Habits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if request.resolver_match.url_name == 'partnership_list' %} active{% endif %}" href="{% url 'partnership_list' %}">Partners</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="navbar-text d-none d-lg-inline small text-muted">Hi, <strong>{{ user.username }}</strong></span>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Logout</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container mt-4 mb-5 flex-grow-1">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center text-muted small py-3 border-top bg-white">
+        StreakKeeper — build better habits, together.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

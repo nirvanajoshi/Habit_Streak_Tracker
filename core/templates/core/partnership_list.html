@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Partners — StreakKeeper{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">Accountability Partners</h1>
+        <p class="text-muted mb-0">Stay motivated with someone who's rooting for you.</p>
+    </div>
+    <a href="{% url 'partnership_create' %}" class="btn btn-primary">
+        <span class="me-1">+</span> Add Partner
+    </a>
+</div>
+
+{% if partnerships %}
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Partner</th>
+                    <th class="text-end pe-4">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for partnership in partnerships %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center gap-3">
+                            {% if partnership.user == request.user %}
+                            <div class="avatar-circle">{{ partnership.partner.username|first|upper }}</div>
+                            <div>
+                                <div class="fw-semibold">{{ partnership.partner.username }}</div>
+                                <div class="small text-muted">Partner since {{ partnership.created_at|date:"M j, Y" }}</div>
+                            </div>
+                            {% else %}
+                            <div class="avatar-circle">{{ partnership.user.username|first|upper }}</div>
+                            <div>
+                                <div class="fw-semibold">{{ partnership.user.username }}</div>
+                                <div class="small text-muted">Partner since {{ partnership.created_at|date:"M j, Y" }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="text-end pe-4">
+                        <a href="{% url 'partnership_delete' partnership.pk %}"
+                           class="btn btn-sm btn-outline-danger">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5 px-4">
+        <div class="display-6 mb-3">🤝</div>
+        <h2 class="h5 fw-bold mb-2">No partners yet</h2>
+        <p class="text-muted mb-4">Add an accountability partner and keep each other on track.</p>
+        <a href="{% url 'partnership_create' %}" class="btn btn-primary">Add a Partner</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

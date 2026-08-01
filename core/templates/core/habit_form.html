@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Habit{% else %}New Habit{% endif %} — StreakKeeper{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h4 fw-bold mb-1">
+                    {% if form.instance.pk %}Edit Habit{% else %}Create a New Habit{% endif %}
+                </h1>
+                <p class="text-muted small mb-4">
+                    {% if form.instance.pk %}Update the details of your habit.{% else %}What do you want to build a streak around?{% endif %}
+                </p>
+                <form method="post" class="sk-form">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text small">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    {% if form.non_field_errors %}
+                    <div class="text-danger small mb-3">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            {% if form.instance.pk %}Save Changes{% else %}Create Habit{% endif %}
+                        </button>
+                        <a href="{% url 'habit_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

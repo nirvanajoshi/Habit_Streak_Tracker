@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My Habits — StreakKeeper{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">My Habits</h1>
+        <p class="text-muted mb-0">Keep the streak alive — one day at a time.</p>
+    </div>
+    <a href="{% url 'habit_create' %}" class="btn btn-primary">
+        <span class="me-1">+</span> Add Habit
+    </a>
+</div>
+
+{% if habits %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    {% for habit in habits %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h2 class="h5 card-title fw-bold mb-0">{{ habit.name }}</h2>
+                    <span class="badge rounded-pill bg-light text-secondary border">{{ habit.get_frequency_display }}</span>
+                </div>
+                <p class="card-text text-muted small mb-3">{{ habit.description|truncatechars:80 }}</p>
+
+                {% if habit.streak %}
+                <div class="streak-panel rounded-3 p-3 mb-3 d-flex align-items-center gap-3">
+                    <div class="text-center">
+                        <div class="fs-2 text-accent lh-1">🔥</div>
+                        <div class="small text-muted mt-1">streak</div>
+                    </div>
+                    <div>
+                        <div class="fs-3 fw-bold text-accent lh-1">
+                            {{ habit.streak.current_streak }} day{{ habit.streak.current_streak|pluralize }}
+                        </div>
+                        <div class="small text-muted mt-1">
+                            Longest: {{ habit.streak.longest_streak }} day{{ habit.streak.longest_streak|pluralize }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="rounded-3 bg-light p-3 mb-3 small text-muted">
+                    No check-ins yet — log your first one to start a streak!
+                </div>
+                {% endif %}
+
+                <div class="mt-auto d-flex gap-2">
+                    <a href="{% url 'checkin_create' habit.pk %}" class="btn btn-primary btn-sm flex-grow-1 fw-semibold">
+                        ✓ Check In Today
+                    </a>
+                    <a href="{% url 'habit_update' habit.pk %}" class="btn btn-outline-secondary btn-sm" title="Edit">Edit</a>
+                    <a href="{% url 'habit_delete' habit.pk %}" class="btn btn-outline-danger btn-sm" title="Delete">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5 px-4">
+        <div class="display-6 mb-3">🌱</div>
+        <h2 class="h5 fw-bold mb-2">No habits yet</h2>
+        <p class="text-muted mb-4">Create your first habit and start building momentum today.</p>
+        <a href="{% url 'habit_create' %}" class="btn btn-primary">Add Your First Habit</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
