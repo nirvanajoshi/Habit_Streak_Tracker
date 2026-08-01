@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from .models import Habit, CheckIn, Partnership
+from .models import Habit, CheckIn, Partnership,Streak
 from .forms import HabitForm, CheckInForm, PartnershipForm
 from django.contrib.auth.forms import UserCreationForm
-
+from django.db.models import Q
 
 def register(request):
     if request.method == 'POST':
@@ -133,4 +133,42 @@ def checkin_delete(request, habit_id, checkin_id):
         checkin.delete()
         return redirect('habit_list')
     return render(request, 'core/checkin_confirm_delete.html', {'checkin': checkin, 'habit': habit})
+
+@login_required
+def partnership_list(request):
+    partnerships = Partnership.objects.filter(Q(user=request.user) | Q(partner=request.user))
+    return render(request, 'core/partnership_list.html', {'partnerships': partnerships})
+
+@login_required
+def partnership_create(request):
+    if request.method == 'POST':
+        form = PartnershipForm(request.POST)
+        if form.is_valid():
+            partnership = form.save(commit=False)
+            partnership.user = request.user
+            partnership.save()
+            return redirect('partnership_list')
+    else:
+        form = PartnershipForm()
+    return render(request, 'core/partnership_form.html', {'form': form})
+
+@login_required
+def partnership_update(request, pk):
+    partnership = get_object_or_404(Partnership, Q(pk=pk), Q(user=request.user) | Q(partner=request.user))
+    if request.method == 'POST':
+        form = PartnershipForm(request.POST, instance=partnership)
+        if form.is_valid():
+            form.save()
+            return redirect('partnership_list')
+    else:
+        form = PartnershipForm(instance=partnership)
+    return render(request, 'core/partnership_form.html', {'form': form})
+
+@login_required
+def partnership_delete(request, pk):
+    partnership = get_object_or_404(Partnership, Q(pk=pk), Q(user=request.user) | Q(partner=request.user))
+    if request.method == 'POST':
+        partnership.delete()
+        return redirect('partnership_list')
+    return render(request, 'core/partnership_confirm_delete.html', {'partnership': partnership})
 
